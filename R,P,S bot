@@ -1,0 +1,106 @@
+const readline = require("readline");
+
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
+
+function wait(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function typeOut(text, delay = 50) {
+  for (const char of text) {
+    process.stdout.write(char);
+    await wait(delay);
+  }
+  console.log();
+}
+
+function cleanMove(input) {
+  input = input.toLowerCase().trim();
+  if (/^g/i.test(input)) return "gun";
+  if (/^r/i.test(input)) return "rock";
+  if (/^p/i.test(input)) return "paper";
+  if (/^s/i.test(input)) return "scissors";
+  return null;
+}
+
+function getRandomMove() {
+  const moves = ["rock", "paper", "scissors"];
+  return moves[Math.floor(Math.random() * moves.length)];
+}
+
+function determineWinner(userMove, computerMove) {
+  if (userMove === computerMove) return "It's a tie!";
+  if (
+    (userMove === "rock" && computerMove === "scissors") ||
+    (userMove === "paper" && computerMove === "rock") ||
+    (userMove === "scissors" && computerMove === "paper")
+  ) return "You win!";
+  return "Computer wins!";
+}
+
+async function main() {
+  rl.question("Do you wanna play rock paper scissors? ", async function(answer) {
+    answer = answer.toLowerCase().trim();
+
+    if (["yes", "yeah", "sure", "why not", "ok", "yas", "y"].includes(answer)) {
+      console.log("Ok bet. Wait for the countdown before typing anything.");
+
+      rl.pause();
+      await wait(2000);
+      await typeOut("Three.", 50);
+      await wait(500);
+      await typeOut("Two.", 50);
+      await wait(500);
+      await typeOut("AAANNNDD", 50);
+      await wait(500);
+      await typeOut("ONE:", 50);
+
+      rl.resume();
+      rl.question("Your move: ", async function(userMove) {
+        const cleanUserMove = cleanMove(userMove);
+
+        if (cleanUserMove === "gun") {
+          rl.pause();
+          await typeOut("BRO.", 50);
+          await wait(500);
+          await typeOut("THIS IS ROCK. PAPER. SCISSORS.", 50);
+          await wait(500);
+          await typeOut("WHY DID YOU BRING A GUN???", 50);
+          await wait(500);
+          await typeOut("I'M DONE. I QUIT. YOU WIN. WHATEVER.", 50);
+          rl.close();
+          process.exit();
+        }
+
+        if (!cleanUserMove) {
+          await typeOut("Bro... that’s not even rock, paper, or scissors.", 50);
+          rl.close();
+          return;
+        }
+
+        const computerMove = getRandomMove();
+        await typeOut(`You chose: ${cleanUserMove} | Computer chose: ${computerMove}`, 50);
+
+        const result = determineWinner(cleanUserMove, computerMove);
+        await typeOut(result, 50);
+
+        rl.close();
+      });
+
+    } else {
+      rl.pause();
+      await typeOut("THEN WHAT THE F*** ARE YOU DOING HERE?!!!!!", 50);
+      await wait(500);
+      await typeOut("CAN YOU READ OR ARE YOU F***ING BLIND???!!!", 50);
+      await wait(500);
+      await typeOut("Ya know what? I don't care anymore. GO. TO. HELL.", 50);
+      rl.close();
+      process.exit();
+    }
+  });
+}
+
+main();
